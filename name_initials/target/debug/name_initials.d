@@ -1,0 +1,1 @@
+/home/aelidris/Desktop/piscine-rust/name_initials/target/debug/name_initials: /home/aelidris/Desktop/piscine-rust/name_initials/src/lib.rs /home/aelidris/Desktop/piscine-rust/name_initials/src/main.rs
