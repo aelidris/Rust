@@ -14,9 +14,9 @@ pub fn diagonals(player: char, table: [[char; 3]; 3]) -> bool {
 }
 
 pub fn horizontal(player: char, table: [[char; 3]; 3]) -> bool {
-    (table[0][0] == player && table[1][0] == player && table[2][0] == player) ||
-        (table[0][1] == player && table[1][1] == player && table[2][1] == player) ||
-        (table[0][2] == player && table[1][2] == player && table[2][2] == player)
+    (table[0][0] == player && table[0][1] == player && table[0][2] == player) ||
+        (table[1][0] == player && table[1][1] == player && table[1][2] == player) ||
+        (table[2][0] == player && table[2][1] == player && table[2][2] == player)
 }
 
 pub fn vertical(player: char, table: [[char; 3]; 3]) -> bool {
