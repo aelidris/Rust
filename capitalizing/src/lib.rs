@@ -12,23 +12,22 @@ pub fn capitalize_first(input: &str) -> String {
 }
 
 pub fn title_case(input: &str) -> String {
-    let mut res = String::new();
-    let mut test = 1;
-    for c in input.split_whitespace() {
-        
-        for c2 in c.chars() {
-            if test == 1 {
-                test+=1;
-                res.push(c2.to_ascii_uppercase());
-                continue
-            }
-            res.push(c2);
+    let mut result = String::new();
+    let mut capitalize_next = true;
+
+    for c in input.chars() {
+        if c.is_whitespace() {
+            result.push(c);
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.extend(c.to_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
         }
-        test = 1;
-        res.push(' ')
     }
-    res.pop();
-    res
+
+    result
 }
 
 pub fn change_case(input: &str) -> String {
