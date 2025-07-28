@@ -27,6 +27,7 @@ pub fn title_case(input: &str) -> String {
         test = 1;
         res.push(' ')
     }
+    res.pop();
     res
 }
 
