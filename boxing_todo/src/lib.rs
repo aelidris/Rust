@@ -2,7 +2,7 @@ mod err;
 
 use std::{error::Error, fs, io};
 
-use json::{parse, JsonValue};
+use json::parse;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Task {
