@@ -1,8 +1,8 @@
 mod err;
+pub use err::{ParseErr, ReadErr};
 
-use std::{error::Error, fs, io};
-
-use json::parse;
+use std::error::Error;
+use std::fs;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Task {
@@ -19,68 +19,25 @@ pub struct TodoList {
 
 impl TodoList {
     pub fn get_todo(path: &str) -> Result<TodoList, Box<dyn Error>> {
-        let content = fs::read_to_string(path).map_err(|e| {
-            Box::new(err::ReadErr {
-                child_err: Box::new(e),
-            }) as Box<dyn Error>
+        let contents = fs::read_to_string(path).map_err(|e| ReadErr {
+            child_err: Box::new(e),
         })?;
 
-        let parsed = parse(&content).map_err(|e| {
-            Box::new(err::ParseErr::Malformed(Box::new(e))) as Box<dyn Error>
-        })?;
-
-        if !parsed.has_key("title") || !parsed.has_key("tasks") {
-            return Err(Box::new(err::ParseErr::Malformed(Box::new(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Missing 'title' or 'tasks' field",
-            )))));
+        let contents = json::parse(&contents).map_err(|e| ParseErr::Malformed(Box::new(e)))?;
+        if contents["tasks"].is_empty() {
+            return Err(ParseErr::Empty.into());
         }
 
-        let title = parsed["title"].as_str().ok_or_else(|| {
-            Box::new(err::ParseErr::Malformed(Box::new(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Title is not a string",
-            )))) as Box<dyn Error>
-        })?;
-
-        let tasks_array = &parsed["tasks"];
-        if tasks_array.is_empty() {
-            return Err(Box::new(err::ParseErr::Empty));
-        }
-
-        let mut tasks = Vec::new();
-        for task in tasks_array.members() {
-            let id = task["id"].as_u32().ok_or_else(|| {
-                Box::new(err::ParseErr::Malformed(Box::new(io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    "Task id is missing or not a number",
-                )))) as Box<dyn Error>
-            })?;
-
-            let description = task["description"].as_str().ok_or_else(|| {
-                Box::new(err::ParseErr::Malformed(Box::new(io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    "Task description is missing or not a string",
-                )))) as Box<dyn Error>
-            })?;
-
-            let level = task["level"].as_u32().ok_or_else(|| {
-                Box::new(err::ParseErr::Malformed(Box::new(io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    "Task level is missing or not a number",
-                )))) as Box<dyn Error>
-            })?;
-
-            tasks.push(Task {
-                id,
-                description: description.to_string(),
-                level,
-            });
-        }
-
-        Ok(TodoList {
-            title: title.to_string(),
-            tasks,
+        Ok(Self {
+            title: contents["title"].as_str().unwrap().to_owned(),
+            tasks: contents["tasks"]
+                .members()
+                .map(|m| Task {
+                    id: m["id"].as_u32().unwrap(),
+                    description: m["description"].as_str().unwrap().to_owned(),
+                    level: m["level"].as_u32().unwrap(),
+                })
+                .collect(),
         })
     }
 }
