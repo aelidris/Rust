@@ -1,6 +1,7 @@
 use std::{ error::Error, fmt::Display };
 
 #[derive(Debug)]
+
 pub enum ParseErr {
     Empty,
     Malformed(Box<dyn Error>),
