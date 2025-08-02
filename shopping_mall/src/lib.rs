@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 pub mod mall;
-pub use mall::*;
 pub fn biggest_store(mall: &Mall) -> (&String, &Store) {
     mall.floors
         .values()
