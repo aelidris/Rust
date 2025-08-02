@@ -1,31 +1,35 @@
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum Role {
-    Underboss,
-    Caporegime,
-    Soldier,
-    Associate,
-}
 
 #[derive(Debug, PartialEq)]
 pub struct Member {
     pub role: Role,
     pub age: u32,
 }
+#[derive(Debug, PartialEq)]
 
-impl Member {
-    pub fn new(age: u32) -> Self {
-        Member {
-            role: Role::Associate,
-            age,
+pub enum Role {
+    Underboss,
+    Caporegime,
+    Soldier,
+    Associate,
+}
+impl Role {
+    pub fn power(&self) -> u32 {
+        match self {
+            Role::Underboss => 4,
+            Role::Caporegime => 3,
+            Role::Soldier => 2,
+            Role::Associate => 1,
         }
     }
+}
 
+impl Member {
     pub fn get_promotion(&mut self) {
-        self.role = match self.role {
-            Role::Associate => Role::Soldier,
-            Role::Soldier => Role::Caporegime,
-            Role::Caporegime => Role::Underboss,
-            Role::Underboss => panic!("Cannot promote an Underboss further!"),
+        match self.role {
+            Role::Underboss => panic!(""),
+            Role::Associate => self.role = Role::Soldier,
+            Role::Caporegime => self.role = Role::Underboss,
+            Role::Soldier => self.role = Role::Caporegime,
         }
     }
 }

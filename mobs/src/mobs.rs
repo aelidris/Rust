@@ -1,9 +1,8 @@
-use std::collections::{HashMap, HashSet};
 pub mod boss;
 pub mod member;
-
-pub use boss::Boss;
-pub use member::{Member, Role};
+pub use boss::*;
+pub use member::*;
+pub use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, PartialEq)]
 pub struct Mob {
@@ -15,64 +14,43 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new(name: String, boss: Boss) -> Self {
-        Mob {
-            name,
-            boss,
-            members: HashMap::new(),
-            cities: HashSet::new(),
-            wealth: 0,
-        }
+    pub fn recruit(&mut self, info: (&str, u32)) {
+        let member = Member {
+            role: Role::Associate,
+            age: info.1,
+        };
+        self.members.insert((info.0).to_string(), member);
     }
+    pub fn attack(&mut self, another: &mut Mob) {
+        let self_score: u32 = self.members.values().map(|m| m.role.power()).sum();
+        let other_score: u32 = another.members.values().map(|m| m.role.power()).sum();
 
-    pub fn recruit(&mut self, (name, age): (&str, u32)) {
-        self.members.insert(name.to_string(), Member::new(age));
-    }
-
-    pub fn attack(&mut self, target: &mut Mob) {
-        let self_power = self.combat_score();
-        let target_power = target.combat_score();
-
-        if self_power > target_power {
-            target.remove_youngest();
-            if target.members.is_empty() {
-                self.cities.extend(target.cities.drain());
-                self.wealth += target.wealth;
-                target.wealth = 0;
-            }
+        let (loser, winner) = if self_score > other_score {
+            (another, self)
         } else {
-            self.remove_youngest();
+            (self, another)
+        };
+
+        if let Some(min_age) = loser.members.values().map(|m| m.age).min() {
+            loser.members.retain(|_, m| m.age != min_age);
+        }
+
+        if loser.members.is_empty() {
+            winner.cities.extend(loser.cities.drain());
+            winner.wealth += loser.wealth;
+            loser.wealth = 0;
         }
     }
-
     pub fn steal(&mut self, target: &mut Mob, amount: u64) {
         let steal_amount = amount.min(target.wealth);
         target.wealth -= steal_amount;
         self.wealth += steal_amount;
     }
 
-    pub fn conquer_city(&mut self, mobs: &[&Mob], city: String) {
-        if !mobs.iter().any(|m| m.cities.contains(&city)) {
-            self.cities.insert(city);
-        }
-    }
-
-    fn combat_score(&self) -> u32 {
-        self.members.values().map(|m| match m.role {
-            Role::Underboss => 4,
-            Role::Caporegime => 3,
-            Role::Soldier => 2,
-            Role::Associate => 1,
-        }).sum()
-    }
-
-    fn remove_youngest(&mut self) {
-        let youngest_name = self.members.iter()
-            .min_by_key(|(_, member)| member.age)
-            .map(|(name, _)| name.clone());
-        
-        if let Some(name) = youngest_name {
-            self.members.remove(&name);
+    pub fn conquer_city(&mut self, all: &[&Mob], name: String) {
+        let already_taken = all.iter().any(|mob| mob.cities.contains(&name));
+        if !already_taken {
+            self.cities.insert(name);
         }
     }
 }
