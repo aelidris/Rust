@@ -1,0 +1,1 @@
+/home/aelidris/Desktop/piscine-rust/shopping_mall/target/debug/shopping_mall: /home/aelidris/Desktop/piscine-rust/shopping_mall/src/lib.rs /home/aelidris/Desktop/piscine-rust/shopping_mall/src/main.rs /home/aelidris/Desktop/piscine-rust/shopping_mall/src/mall.rs

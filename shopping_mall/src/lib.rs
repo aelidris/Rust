@@ -33,41 +33,37 @@ pub fn highest_paid_employee(mall: &Mall) -> Vec<(&String, &Employee)> {
 pub fn nbr_of_employees(mall: &Mall) -> usize {
     mall.floors
         .values()
-        .flat_map(|floor| floor.stores.values())
-        .map(|store| store.employees.len())
-        .sum()
+        .flat_map(|f| f.stores.values().flat_map(|s| &s.employees))
+        .count() + mall.guards.len()
 }
 
 pub fn check_for_securities(mall: &mut Mall, available_guards: HashMap<String, Guard>) {
-    let total_size: u64 = mall.floors
+    let total_size = mall.floors
         .values()
-        .flat_map(|floor| floor.stores.values())
-        .map(|store| store.square_meters)
-        .sum();
+        .map(|f| f.size_limit)
+        .sum::<u64>();
 
-    let required_guards = (total_size / 200) as usize;
-    let current_guards = mall.guards.len();
+    let total_areas = total_size / 200;
+    let unguarded_areas = (total_areas as usize) - mall.guards.len();
 
-    if current_guards < required_guards {
-        let needed = required_guards - current_guards;
-        for (name, guard) in available_guards.into_iter().take(needed) {
+    available_guards
+        .into_iter()
+        .take(unguarded_areas)
+        .for_each(|(name, guard)| {
             mall.hire_guard(name, guard);
-        }
-    }
+        });
 }
 
 pub fn cut_or_raise(mall: &mut Mall) {
-    for floor in mall.floors.values_mut() {
-        for store in floor.stores.values_mut() {
-            for employee in store.employees.values_mut() {
-                let hours = employee.working_hours.1 - employee.working_hours.0;
-                if hours >= 10 {
-                    employee.salary *= 1.1;
-                } else {
-                    employee.salary *= 0.9;
-                }
-                employee.salary = (employee.salary * 1000.0).round() / 1000.0;
+    mall.floors
+        .values_mut()
+        .flat_map(|f| f.stores.values_mut().flat_map(|s| s.employees.values_mut()))
+        .for_each(|e| {
+            let shift_hours = e.working_hours.1 - e.working_hours.0;
+            if shift_hours >= 10 {
+                e.raise(e.salary * 0.1);
+            } else {
+                e.cut(e.salary * 0.1);
             }
-        }
-    }
+        });
 }
