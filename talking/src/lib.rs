@@ -16,7 +16,7 @@ pub fn talking(text: &str) -> &str {
 
 pub fn all_letters_upper(s: &str) -> bool {
     for c in s.chars() {
-        if !c.is_uppercase() {
+        if c.is_ascii_alphabetic() && !c.is_uppercase() {
             return false;
         }
     }
