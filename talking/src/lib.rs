@@ -1,10 +1,10 @@
 pub fn talking(text: &str) -> &str {
-    if text.is_empty() {
+    if text.trim().is_empty() {
         return "Just say something!";
     }
 
     let is_yelling = all_letters_upper(text);
-    let is_question = text.contains('?');
+    let is_question = text.trim_end().ends_with('?');
 
     match (is_yelling, is_question) {
         (true, true) => "Quiet, I am thinking!",
@@ -15,10 +15,6 @@ pub fn talking(text: &str) -> &str {
 }
 
 pub fn all_letters_upper(s: &str) -> bool {
-    for c in s.chars() {
-        if c.is_ascii_alphabetic() && !c.is_uppercase() {
-            return false;
-        }
-    }
-    return true;
+    let letters = s.chars().filter(|c| c.is_alphabetic()).collect::<Vec<_>>();
+    !letters.is_empty() && letters.iter().all(|c| c.is_uppercase())
 }
