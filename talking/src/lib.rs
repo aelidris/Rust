@@ -15,6 +15,10 @@ pub fn talking(text: &str) -> &str {
 }
 
 pub fn all_letters_upper(s: &str) -> bool {
-    let has_letters = s.chars().any(|c| c.is_alphabetic());
-    has_letters && s.chars().all(|c| (!c.is_alphabetic() || c.is_uppercase()))
+    for c in s.chars() {
+        if !c.is_uppercase() {
+            return false;
+        }
+    }
+    return true;
 }
