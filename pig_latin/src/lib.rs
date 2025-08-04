@@ -1,27 +1,17 @@
-pub fn pig_latin(text: &str) -> String {
-    let vowels = ['a', 'e', 'i', 'o', 'u'];
-    let mut chars = text.chars().peekable();
-    let mut consonant_cluster = String::new();
-    if let Some(&first) = chars.peek() {
-        if vowels.contains(&first.to_ascii_lowercase()) {
-            return format!("{}ay", text);
-        }
-    }
-    while let Some(&c) = chars.peek() {
-        let lowercase_c = c.to_ascii_lowercase();
-        if !vowels.contains(&lowercase_c) {
-            consonant_cluster.push(c);
-            chars.next();
+const VOWELS: &str = "aeiou";
 
-            if lowercase_c == 'q' && chars.peek() == Some(&'u') {
-                consonant_cluster.push('u');
-                chars.next();
-                break;
-            }
+pub fn pig_latin(text: &str) -> String {
+    let first_vowel = text
+        .find(|c: char| VOWELS.contains(c.to_ascii_lowercase()))
+        .unwrap_or(text.len());
+
+    let (start, rem) = text.split_at(
+        if first_vowel != 0 && text.len() >= 3 && &text[1..3] == "qu" {
+            3
         } else {
-            break;
-        }
-    }
-    let remaining: String = chars.collect();
-    format!("{}{}ay", remaining, consonant_cluster)
+            first_vowel
+        },
+    );
+
+    format!("{rem}{start}ay")
 }
