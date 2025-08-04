@@ -1,7 +1,7 @@
 pub fn rotate(input: &str, key: i8) -> String {
     let mut ro = key;
     if key < 0 {
-        ro = key * -1 + 24;
+        ro = (key * -1 + 24) % 26;
     }
     let all = "abcdefghijklmnopqrstuvwxyz".to_string();
     let all_v2 = all.to_uppercase();
@@ -36,3 +36,4 @@ pub fn helper(ch: char) -> usize {
     }
     return res;
 }
+
