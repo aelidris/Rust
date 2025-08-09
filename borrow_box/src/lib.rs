@@ -31,7 +31,9 @@ impl GameSession {
             self.p1.1 += 1;
         } else if user_name == self.p2.0 {
             self.p2.1 += 1;
-        }   
+        } else {
+            return;
+        }
     }
 
     pub fn delete(self) -> String {
