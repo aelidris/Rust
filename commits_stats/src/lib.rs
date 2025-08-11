@@ -1,6 +1,6 @@
 use json::JsonValue;
 use std::collections::HashMap;
-use chrono::{DateTime, NaiveDateTime, Utc, Datelike, Weekday};
+use chrono::{DateTime, Datelike};
 
 pub fn commits_per_week(data: &JsonValue) -> HashMap<String, u32> {
     let mut week_counts = HashMap::new();
