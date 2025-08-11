@@ -21,16 +21,20 @@ pub fn commits_per_week(data: &JsonValue) -> HashMap<String, u32> {
     week_counts
 }
 
-pub fn commits_per_author(data: &JsonValue) -> HashMap<String, u32> {
-    let mut author_counts = HashMap::new();
-
-    if let JsonValue::Array(commits) = data {
-        for commit in commits {
-            if let Some(login) = commit["author"]["login"].as_str() {
-                *author_counts.entry(login.to_string()).or_insert(0) += 1;
-            }
-        }
+pub fn commits_per_week(data: &json::JsonValue) -> HashMap<String, u32> {
+    let mut commits_per_week: HashMap<String, u32> = HashMap::new();
+    for commit in data.members() {
+        let count = commits_per_week
+            .entry(
+                Week(
+                    DateTime::parse_from_rfc3339(&commit["commit"]["author"]["date"].to_string())
+                        .unwrap()
+                        .iso_week(),
+                )
+                .to_string(),
+            )
+            .or_insert(0);
+        *count += 1;
     }
-
-    author_counts
+    commits_per_week
 }
