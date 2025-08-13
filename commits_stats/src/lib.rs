@@ -1,6 +1,18 @@
-use json::JsonValue;
+use chrono::prelude::*;
+use chrono::IsoWeek;
+
+#[derive(Debug)]
+struct Week(IsoWeek);
+
+use std::fmt;
+
+impl fmt::Display for Week {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.0)
+    }
+}
+
 use std::collections::HashMap;
-use chrono::{DateTime, Datelike};
 
 pub fn commits_per_author(data: &json::JsonValue) -> HashMap<String, u32> {
     let mut commits_per_author: HashMap<String, u32> = HashMap::new();
