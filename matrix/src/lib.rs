@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Matrix<T>(pub Vec<Vec<T>>);
 use lalgebra_scalar::Scalar;
 
