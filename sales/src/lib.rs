@@ -23,48 +23,39 @@ impl Cart {
     }
 
     pub fn insert_item(&mut self, s: &Store, ele: String) {
-        if let Some((name, price)) = s.products.iter().find(|(n, _)| *n == ele) {
-            self.items.push((name.clone(), *price));
+        if let Some(product) = s.products.iter().find(|(name, _)| *name == ele) {
+            self.items.push((product.0.clone(), product.1));
         }
     }
 
     pub fn generate_receipt(&mut self) -> Vec<f32> {
-        let mut prices: Vec<f32> = self.items.iter().map(|(_, p)| *p).collect();
-
+        let mut prices: Vec<f32> = self.items.iter().map(|(_, price)| *price).collect();
         prices.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-        let mut discounted: Vec<f32> = prices.clone();
-        let mut i = 0;
+        let total_original: f32 = prices.iter().sum();
+        let mut total_discount = 0.0;
 
-        while i + 2 < prices.len() {
-            let group = &prices[i..i + 3];
-            let min_price = group.iter().cloned().fold(f32::INFINITY, f32::min);
-
-            let group_sum: f32 = group.iter().sum();
-
-            for j in 0..3 {
-                let idx = i + j;
-                let proportion = prices[idx] / group_sum;
-                discounted[idx] = (prices[idx] - proportion * min_price * 1.0).round_to_cents();
-            }
-            i += 3;
+        let groups = prices.len() / 3;
+        for i in 0..groups {
+            total_discount += prices[i * 3];
         }
 
-        discounted = discounted.into_iter().map(|x| x.round_to_cents()).collect();
+        let total_after_discount = total_original - total_discount;
 
-        self.receipt = discounted.clone();
-        self.receipt.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        if total_original == 0.0 {
+            self.receipt = vec![];
+            return self.receipt.clone();
+        }
 
-        self.receipt.clone()
-    }
-}
+        let adjustment_factor = total_after_discount / total_original;
+        let mut adjusted_prices: Vec<f32> = prices
+            .iter()
+            .map(|price| (price * adjustment_factor * 100.0).round() / 100.0)
+            .collect();
 
-trait RoundTwo {
-    fn round_to_cents(self) -> f32;
-}
+        adjusted_prices.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-impl RoundTwo for f32 {
-    fn round_to_cents(self) -> f32 {
-        (self * 100.0).round() / 100.0
+        self.receipt = adjusted_prices.clone();
+        adjusted_prices
     }
 }
