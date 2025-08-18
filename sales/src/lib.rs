@@ -50,8 +50,25 @@ impl Cart {
         let adjustment_factor = total_after_discount / total_original;
         let mut adjusted_prices: Vec<f32> = prices
             .iter()
-            .map(|price| (price * adjustment_factor * 100.0).round() / 100.0)
+            .map(|price| {
+                let adjusted = price * adjustment_factor;
+                (adjusted * 100.0).round() / 100.0
+            })
             .collect();
+
+        let sum_adjusted: f32 = adjusted_prices.iter().sum();
+        let discrepancy = total_after_discount - sum_adjusted;
+        if discrepancy.abs() > 0.001 {
+            if let Some(max_idx) = adjusted_prices
+                .iter()
+                .enumerate()
+                .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
+                .map(|(idx, _)| idx)
+            {
+                adjusted_prices[max_idx] += discrepancy;
+                adjusted_prices[max_idx] = (adjusted_prices[max_idx] * 100.0).round() / 100.0;
+            }
+        }
 
         adjusted_prices.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
