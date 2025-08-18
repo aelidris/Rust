@@ -1,6 +1,6 @@
 pub fn get_products(arr: Vec<usize>) -> Vec<usize> {
     let n = arr.len();
-    if n == 0 {
+    if n == 0 || n == 1 {
         return vec![];
     }
 
@@ -19,6 +19,5 @@ pub fn get_products(arr: Vec<usize>) -> Vec<usize> {
     for i in 0..n {
         result[i] = prefix[i] * suffix[i];
     }
-
     result
 }
