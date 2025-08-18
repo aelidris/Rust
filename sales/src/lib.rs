@@ -2,6 +2,7 @@
 pub struct Store {
     pub products: Vec<(String, f32)>,
 }
+
 impl Store {
     pub fn new(products: Vec<(String, f32)>) -> Store {
         Store { products }
@@ -17,8 +18,8 @@ pub struct Cart {
 impl Cart {
     pub fn new() -> Cart {
         Cart {
-            items: Vec::new(),
-            receipt: Vec::new(),
+            items: vec![],
+            receipt: vec![],
         }
     }
 
